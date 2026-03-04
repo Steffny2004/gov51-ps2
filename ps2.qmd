@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 # 1 Part 1: The Original Study (20 points)
 
 ## 1.1 Exploring the Experiment
@@ -81,6 +80,7 @@ ggplot(data = gay_s1w1_mean_ssm, aes(x = treatment, y = mean_ssm, fill = treatme
   labs(
     title = "Mean Same-Sex Marriage Attitudes by Canvassing Group",
     subtitle = "Study 1, Wave 1", 
+    title = "Mean Same-Sex Marriage Attitudes by Canvassing Group (Study 1, Wave 1)",
     x = "Canvassing Groups",
     y = "Mean SSM") +
   theme_minimal() + 

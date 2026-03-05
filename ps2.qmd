@@ -147,17 +147,17 @@ standardized_mean_diff_s1w2 <- (gay_compare_s1w2$mean_ssm[2] -
 
 ```{r}
 # Load data
-gay_r <- read_csv("data/raw/gayreshaped.csv")
+gayr <- read_csv("data/raw/gayreshaped.csv")
 ccap <- read_csv("data/raw/ccap2012.csv")
 
 # Count observations and find colnames
-n_gay_r <- nrow(gay_r)
-colnames_gay_r <- colnames(gay_r)
-n_ccap <- nrow(gay_r)
+n_gayr <- nrow(gayr)
+colnames_gayr <- colnames(gayr)
+n_ccap <- nrow(ccap)
 colnames_ccap <- colnames(ccap)
 
 # Display results
-cat("gayreshaped.csv:\n", n_gay_r, "total observations and the column names are\n-", paste(colnames_gay_r, collapse = "\n- "))
+cat("gayreshaped.csv:\n", n_gayr, "total observations and the column names are\n-", paste(colnames_gayr, collapse = "\n- "))
 
 cat("\n\nccap2012.csv.:\n", n_ccap, "total observations and the column names are\n-", paste(colnames_ccap, collapse = "\n- "))
 
@@ -166,11 +166,11 @@ cat("\n\nccap2012.csv.:\n", n_ccap, "total observations and the column names are
 ### Q2.2 (5 points): Extract the baseline feeling thermometer (`therm1`) for Study 1 from `gayreshaped.csv.` Calculate its mean, median, and standard deviation. Then do the same for gaytherm from `ccap2012.csv` (remove NAs). Report both sets of statistics side by side. What do you notice? (1–2 sentences)
 
 ```{r}
-gay_r_baseline <- gay_r %>%
+gayr_baseline <- gayr %>%
   filter(study == 1) %>%
   drop_na(therm1)
 
-gay_r_baseline_summary <- gay_r_baseline %>%
+gayr_baseline_summary <- gayr_baseline %>%
   summarize(
     mean= mean(therm1), 
     median = median(therm1), 
@@ -185,10 +185,10 @@ ccap_baseline_summary <- ccap %>%
 
 combined_summary <- tibble(
   stat = c("Mean", "Median", "SD"),
-  gay_r = c(
-    gay_r_baseline_summary$mean,
-    gay_r_baseline_summary$median,
-    gay_r_baseline_summary$sd
+  gayr = c(
+    gayr_baseline_summary$mean,
+    gayr_baseline_summary$median,
+    gayr_baseline_summary$sd
   ),
   ccap = c(
     ccap_baseline_summary$mean,
@@ -211,7 +211,7 @@ Do these look like they came from different populations? (2–3 sentences)
 ```{r}
 # Combine datasets
 combined_data <- bind_rows(
-  gay_r_baseline %>%
+  gayr_baseline %>%
     transmute(therm = therm1, source = "LaCour Study 1"),
   ccap %>%
     drop_na(gaytherm) %>%
@@ -240,14 +240,14 @@ ggplot(combined_data, aes(x = therm)) +
 Present your results side by side. A re-test correlation of 0.95–0.97 is typical for real feeling thermometer data. Which study shows a more plausible pattern, and why? (3–4 sentences)
 
 ```{r}
-gay_r_nc_s1_summary <- gay_r %>%
+gayr_nc_s1_summary <- gayr %>%
   drop_na(therm1, therm2) %>%
   filter(study == 1 & treatment == "No Contact") %>%
   summarize(
     cor = cor(therm1, therm2, use =  "complete.obs"), 
     sd = sd(therm2 - therm1))
   
-gay_r_nc_s2_summary <- gay_r %>%
+gayr_nc_s2_summary <- gayr %>%
   drop_na(therm1, therm2) %>%
   filter(study == 2 & treatment == "No Contact") %>%
   summarize(
@@ -256,13 +256,13 @@ gay_r_nc_s2_summary <- gay_r %>%
 
 combined_s1_s2_summary <- tibble(
   stat = c("Correlation", "SD of Within-Person Change"),
-  gay_r_control_s1 = c(
-    gay_r_nc_s1_summary$cor,
-    gay_r_nc_s1_summary$sd
+  gayr_control_s1 = c(
+    gayr_nc_s1_summary$cor,
+    gayr_nc_s1_summary$sd
   ),
-  gay_r_control_s2 = c(
-    gay_r_nc_s2_summary$cor,
-    gay_r_nc_s2_summary$sd
+  gayr_control_s2 = c(
+    gayr_nc_s2_summary$cor,
+    gayr_nc_s2_summary$sd
   )
 )
 
@@ -279,19 +279,19 @@ combined_s1_s2_summary
 Describe the differences. Which looks more like real longitudinal data, and why? (3–4 sentences)
 
 ```{r}
-gay_r_nc_s1 <- gay_r %>%
+gayr_nc_s1 <- gayr %>%
   drop_na(therm1, therm2) %>%
   filter(study == 1 & treatment == "No Contact")
 
-gay_r_nc_s2 <- gay_r %>%
+gayr_nc_s2 <- gayr %>%
   drop_na(therm1, therm2) %>%
   filter(study == 2 & treatment == "No Contact")
   
 # Combine datasets
 combined_nc_studies <- bind_rows(
-  gay_r_nc_s1 %>%
+  gayr_nc_s1 %>%
     transmute(therm1 = therm1, therm2 = therm2, source = "Study 1"),
-  gay_r_nc_s2 %>%
+  gayr_nc_s2 %>%
     transmute(therm1 = therm1, therm2 = therm2, source = "Study 2"))
 
 # Plot side-by-side histograms
@@ -306,7 +306,7 @@ ggplot(combined_nc_studies, aes(x = therm1, y = therm2)) +
   theme_minimal()
 ```
 
-*When looking at the correlation between `therm1` and `therm2`, Study 1 shows nearly perfect positive linear correlation as the data falls barely above and below our 45$\degree$ line. In contrast, Study 2 shows positive linear correlation that is not as strong, as depicted by the jitter in the data above and below the 45$\degree$, and with the data being more spread out or sparse in some regions of the Feeling Thermometer. It is clear that Study 2's scatterplot looks like real longitudinal data in comparison to Study 1 because of the natural noise that seems to exist in Study 2, but in addition to the neatness along the line, the heaping in the middle for Study 1 on the scatterplot looks unnaturally piled along the center in comparison to Study 2.*
+*When looking at the correlation between `therm1` and `therm2`, Study 1 shows nearly perfect positive linear correlation as the data falls barely above and below our 45*$\degree$ line. In contrast, Study 2 shows positive linear correlation that is not as strong, as depicted by the jitter in the data above and below the 45$\degree$, and with the data being more spread out or sparse in some regions of the Feeling Thermometer. It is clear that Study 2's scatterplot looks like real longitudinal data in comparison to Study 1 because of the natural noise that seems to exist in Study 2, but in addition to the neatness along the line, the heaping in the middle for Study 1 on the scatterplot looks unnaturally piled along the center in comparison to Study 2.
 
 ### 2.3 Putting It All Together
 
@@ -318,4 +318,79 @@ ggplot(combined_nc_studies, aes(x = therm1, y = therm2)) +
 
 In 4–5 sentences, explain why these three findings together suggest the data were fabricated rather than collected in a real experiment. Use specific numbers from your analysis. Why would a fabricator produce data with these properties?
 
-*Taken together, these three patterns strongly suggest the data were fabricated rather than collected from real respondents. First, the baseline distribution in Study 1 closely matches the national CCAP survey, with nearly identical summary statistics, which would be unlikely if an independent sample was taken for LaCour's study, so it is more consistent with copying the already existing dataset. Second, the re-test correlation in Study 1 is almost impossibly high at 0.998, which flags as weird because  real attitude measures over time typically show much lower stability due to measurement error and natural variation. Third, the within-person changes are extremely small, with differences clustered near zero and a very small standard deviation, which is unrealistic in real panel data where individuals normally vary more. A fabricator might generate data this way to make the study look clean and convincing—highly stable attitudes with minimal noise, while also using a known national distribution to ensure the baseline appears realistic.*
+*Taken together, these three patterns strongly suggest the data were fabricated rather than collected from real respondents. First, the baseline distribution in Study 1 closely matches the national CCAP survey, with nearly identical summary statistics, which would be unlikely if an independent sample was taken for LaCour's study, so it is more consistent with copying the already existing dataset. Second, the re-test correlation in Study 1 is almost impossibly high at 0.998, which flags as weird because real attitude measures over time typically show much lower stability due to measurement error and natural variation. Third, the within-person changes are extremely small, with differences clustered near zero and a very small standard deviation, which is unrealistic in real panel data where individuals normally vary more. A fabricator might generate data this way to make the study look clean and convincing—highly stable attitudes with minimal noise, while also using a known national distribution to ensure the baseline appears realistic.*
+
+\clearpage
+
+# 3 Part 3: What Real Data Looks Like (25 points)
+
+## 3.1 Comparing Baselines
+
+### Q3.1 (3 points): Filter gayreshaped.csv to Study 2. How many observations? Calculate the mean and SD of therm1 (baseline) for the treatment group and the control group separately.
+
+```{r}
+gayr_s2 <- gayr %>%
+  fitler(study == 2)
+
+gayr_s2_compare <- gayr_s2 %>%
+  summarize(
+    group_by(treatment),
+    n = n(), 
+    mean = mean(therm1), 
+    sd = sd(therm1)
+  )
+```
+
+### Q3.2 (3 points): Create side-by-side histograms of Study 1 baseline (therm1) and Study 2 baseline (`therm1`), using the same bins as before. How do they compare visually? (2–3 sentences)
+
+```{r}
+
+```
+
+*BLANK* \## 3.2 Checking Balance and Comparing Outcomes in Study 2
+
+### Q3.3 (3 points): Filter gayreshaped.csv to Study 2, keeping only the “Same-Sex Marriage Script by Gay Canvasser” and “No Contact” groups. Check balance at baseline: calculate the mean and SD of therm1 for each group and the standardized difference in means (same formula as Q1.5). Do the groups look balanced? (1–2 sentences)
+
+```{r}
+
+```
+
+*BLANK*
+
+### Q3.4 (3 points): Now compare outcomes. Calculate the mean therm2 (post-conversation) for each group. What is the difference in post-period means (gay canvasser minus no contact)?
+
+```{r}
+
+```
+
+\#\@ 3.3 Uncertainty Around the Difference
+
+### Q3.5 (4 points): Calculate the standard error of the difference in post-period means from Q3.4. Use the formula:
+
+$$SE = \sqrt{\frac{s^2_{\text{gay canvasser}}}{n_{\text{gay canvasser}}} + \frac{s^2_{\text{no contact}}}{n_{\text{no contact}}}}$$ where $s^2$ is the variance of `therm2` and $n$ is the sample size for each group. Then construct a 95% confidence interval: $(\bar{x_1} - \bar{x_2) \pm 1.96 \times SE$. Does the CI include zero? What does this tell you about whether the groups differ after the conversations?
+
+```{r}
+
+```
+
+*BLANK*
+
+## 3.4 Tracking Attitudes Over Time
+
+### Q3.6 (4 points): For the Study 2 control group, calculate the correlation between therm1 and each subsequent wave: therm2, therm3, and therm4. Use cor() with use = "complete.obs". Do the correlations decay over time (i.e., do more distant waves correlate less with baseline)? What does this pattern tell you about the stability of real survey measurements? (2–3 sentences)
+
+```{r}
+
+```
+
+*BLANK*
+
+### Q3.7 (5 points): You’ve now analyzed fabricated data (Study 1), caught the fraud, and examined more realistic data (Study 2). In 5–6 sentences, discuss:
+
+-   What makes Study 2’s data different from Study 1’s data? Be specific about which statistics differ and by how much.
+
+-   Why is it important that real treatment effects are smaller and messier than fabricated ones?
+
+-   What role did simple measurement tools (mean, SD, histograms, correlations) play in detecting the fraud?
+
+*BLANK*

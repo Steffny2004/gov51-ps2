@@ -34,9 +34,9 @@ n <- nrow(gay)
 unique_study_count <- length(unique(gay$study))
 treatment_conditions <- unique(gay$treatment)
 
-cat("There are", n, "total observations in gay.csv.\n\n")
-cat("The study variables takes on", unique_study_count, "unique values.\n\n")
-cat("The treatment conditions in the treatment variable are:\n-", 
+cat("Total observations:", n, 
+    "\n\nNumber of unique studies:", unique_study_count,
+    "\n\nThe treatment conditions in the treatment variable are:\n-", 
     paste(treatment_conditions, collapse = "\n- "))
 ```
 
@@ -112,6 +112,7 @@ gay_s1w1_compare
 
 standardized_mean_diff_s1w1 <- (gay_s1w1_compare$mean_ssm[2] - gay_s1w1_compare$mean_ssm[1]) / 
   sqrt((((gay_s1w1_compare$sd_ssm[2])^2 + (gay_s1w1_compare$sd_ssm[1])^2) / 2))
+cat("Standardized difference in means:", standardized_mean_diff_s1w1)
 ```
 
 *The standardized difference in means between the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” groups is `r standardized_mean_diff_s1w1`, which has an absolute value below 0.25 and suggests good balance. Looking at our summary table, it agrees with this metric intuitively given that at baseline, these two groups seem to be very similar in terms of balance as their mean ssm's during Wave 1 are so close to one another even before standardization (0.017569 unstandardized difference), and definitely overlap within two standard errors of each other.*
@@ -135,6 +136,7 @@ gay_s1w2_compare
 standardized_mean_diff_s1w2 <- (gay_s1w2_compare$mean_ssm[2] - 
                                   gay_s1w2_compare$mean_ssm[1]) / 
   sqrt((((gay_s1w2_compare$sd_ssm[2])^2 + (gay_s1w2_compare$sd_ssm[1])^2) / 2))
+cat("Standardized difference in means:", standardized_mean_diff_s1w2)
 ```
 
 *Given that we considered the groups balanced at baseline, the standardized difference now being `r standardized_mean_diff_s1w2` is very comparable to baseline given that it is still below 0.25 in absolute value. Although the standardized difference in means is 0.05 greater than it was at baseline, this change still seems minuscule and suggests a balance between the groups.*
@@ -427,8 +429,8 @@ ci_upper <- mean_diff_gayr_s2 + 1.96 * se
 ci_lower <- mean_diff_gayr_s2 - 1.96 * se
 
 # Display results
-cat("SE =", se)
-cat("\n95% CI:", ci_lower, ",", ci_upper)
+cat("SE =", se, 
+    "\n95% CI:", ci_lower, ",", ci_upper)
 ```
 
 *The standard error of the difference in post-period means from Q3.4 is `r se`, and the 95% CI is [`r ci_upper`, `r ci_lower`]. As we see, the 95% CI does not include 0, which suggests that the difference between the two groups is non-zero and that there is indeed some treatment effect difference after the conversations where there is a higher thermometer score for the gay canvassers post-conversation compared to the no contact groups.*
@@ -573,6 +575,8 @@ prediction
 
 # Calculate predicted difference
 pred_diff = prediction[1] - prediction[2]
+
+cat("Predicted difference:", pred_diff)
 ```
 
 *The predicted wave 2 attitude for Person A (treated) is 52.48, while for Person B (control) it is 50.02, so the predicted difference between them is `r pred_diff`.*

@@ -50,7 +50,9 @@ gay_s1w1 <- gay %>%
 # Calculate the mean ssm
 gay_s1w1_mean_ssm <- gay_s1w1 %>%
   group_by(treatment) %>%
-  summarize(mean_ssm = mean(ssm)) %>%
+  summarize(
+    mean_ssm = mean(ssm), 
+    n = n()) %>%
   arrange(desc(mean_ssm))
 gay_s1w1_mean_ssm
 ```
@@ -112,7 +114,7 @@ standardized_mean_diff_s1w1 <- (gay_s1w1_compare$mean_ssm[2] - gay_s1w1_compare$
   sqrt((((gay_s1w1_compare$sd_ssm[2])^2 + (gay_s1w1_compare$sd_ssm[1])^2) / 2))
 ```
 
-*The standardized difference in means between the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” groups is \`r standardized_mean_diff_s1w1', which has an absolute value below 0.25 and suggests good balance. Looking at our summary table, it agrees with this metric intuitively given that at baseline, these two groups seem to be very similar in terms of balance as their mean ssm's during Wave 1 are so close to one another even before standardization (0.017569 unstandardized difference), and definitely overlap within two standard errors of each other.*
+*The standardized difference in means between the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” groups is `r standardized_mean_diff_s1w1`, which has an absolute value below 0.25 and suggests good balance. Looking at our summary table, it agrees with this metric intuitively given that at baseline, these two groups seem to be very similar in terms of balance as their mean ssm's during Wave 1 are so close to one another even before standardization (0.017569 unstandardized difference), and definitely overlap within two standard errors of each other.*
 
 ### Q1.6 (4 points): Now look at the outcomes. Filter to Study 1, Wave 2 only. Calculate the mean ssm for the gay canvasser group and the No Contact group. What is the difference in means (gay canvasser minus no contact)?
 
@@ -337,7 +339,8 @@ gayr_s2_compare_baseline <- gayr_s2 %>%
   group_by(treatment) %>%
   summarize(
     mean_therm1 = mean(therm1), 
-    sd_therm1 = sd(therm1))
+    sd_therm1 = sd(therm1), 
+    n = n())
 gayr_s2_compare_baseline
 ```
 
@@ -383,14 +386,14 @@ gayr_s2_compare_baseline
 standardized_mean_diff_gayr_s2 <- (gayr_s2_compare_baseline$mean_therm1[2] - gayr_s2_compare_baseline$mean_therm1[1]) / sqrt((((gayr_s2_compare_baseline$sd_therm1[2])^2 + (gayr_s2_compare_baseline$sd_therm1[1])^2) / 2))
 ```
 
-*The standardized difference in means between the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” groups for Study 2 now is `r standardized_mean_diff_gayr_s2', which has an absolute value very below 0.25 and suggests good balance. Looking at our summary table, it also agrees with this metric intuitively given that at baseline, these two groups seem to be very similar in terms of balance as their mean ssm's during Wave 1 are so close to one another even before standardization (0.28077 unstandardized difference), and definitely overlap within two standard errors of each other.*
+*The standardized difference in means between the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” groups for Study 2 now is `r standardized_mean_diff_gayr_s2`, which has an absolute value very below 0.25 and suggests good balance. Looking at our summary table, it also agrees with this metric intuitively given that at baseline, these two groups seem to be very similar in terms of balance as their mean ssm's during Wave 1 are so close to one another even before standardization (0.28077 unstandardized difference), and definitely overlap within two standard errors of each other.*
 
 ### Q3.4 (3 points): Now compare outcomes. Calculate the mean `therm2` (post-conversation) for each group. What is the difference in post-period means (gay canvasser minus no contact)?
 
 ```{r}
 gayr_s2_compare_outcome <- gayr_s2 %>%
   filter(treatment %in% c("Same-Sex Marriage Script by Gay Canvasser", "No Contact")) %>%
-  drop_na(therm1, therm2) %>%
+  drop_na(therm2) %>%
   group_by(treatment) %>%
   summarize(
     mean_therm2 = mean(therm2), 
@@ -405,13 +408,20 @@ cat("The difference in post-period means is", mean_diff_gayr_s2)
 
 ### Q3.5 (4 points): Calculate the standard error of the difference in post-period means from Q3.4. Use the formula:
 
-$$SE = \sqrt{\frac{s^2_{\text{gay canvasser}}}{n_{\text{gay canvasser}}} + \frac{s^2_{\text{no contact}}}{n_{\text{no contact}}}}$$ where $s^2$ is the variance of `therm2` and $n$ is the sample size for each group. Then construct a 95% confidence interval: $(\bar{x_1} - \bar{x_2) \pm 1.96 \times SE$. Does the CI include zero? What does this tell you about whether the groups differ after the conversations?
+$$SE = \sqrt{\frac{s^2_{\text{gay canvasser}}}{n_{\text{gay canvasser}}} + \frac{s^2_{\text{no contact}}}{n_{\text{no contact}}}}$$ 
+where $s^2$ is the variance of `therm2` and $n$ is the sample size for each group. Then construct a 95% confidence interval: $(\bar{x_1} - \bar{x_2}) \pm 1.96 \times SE$. Does the CI include zero? What does this tell you about whether the groups differ after the conversations?
 
 ```{r}
-se <- sqrt(
-  gayr_s2_compare_outcome$sd_therm2[2]^2 / sum(gayr_s2$treatment == "Same-Sex Marriage Script by Gay Canvasser") + 
-    gayr_s2_compare_outcome$sd_therm2[1]^2 / sum(gayr_s2$treatment == "No Contact")
-  )
+se_parameters <- gayr_s2 %>%
+  filter(treatment %in% c("Same-Sex Marriage Script by Gay Canvasser", "No Contact")) %>%
+  drop_na(therm2) %>%
+  group_by(treatment) %>%
+  summarize(
+    var = var(therm2),
+    n = n())
+
+se <- sqrt((se_parameters$var[2]) / (se_parameters$n[2]) + 
+             (se_parameters$var[1]) / (se_parameters$n[1]))
 
 ci_upper <- mean_diff_gayr_s2 + 1.96 * se
 ci_lower <- mean_diff_gayr_s2 - 1.96 * se
@@ -428,17 +438,15 @@ cat("\n95% CI:", ci_lower, ",", ci_upper)
 ### Q3.6 (4 points): For the Study 2 control group, calculate the correlation between therm1 and each subsequent wave: therm2, therm3, and therm4. Use cor() with use = "complete.obs". Do the correlations decay over time (i.e., do more distant waves correlate less with baseline)? What does this pattern tell you about the stability of real survey measurements? (2–3 sentences)
 
 ```{r}
-gayr_s2_nc_compare_all <- gayr_s2 %>%
-  filter(treatment == "No Contact") %>%
-  drop_na(therm1, therm2, therm3, therm4) %>%
+gayr_nc_s2_compare_waves <- gayr_nc_s2 %>%
   summarize(
     cor_therm12 = cor(therm1 , therm2, use = "complete.obs"),
     cor_therm13 = cor(therm1 , therm3, use = "complete.obs"),
     cor_therm14 = cor(therm1 , therm4, use = "complete.obs"))
-gayr_s2_nc_compare_all
+gayr_nc_s2_compare_waves
 ```
 
-*The correlations between therm 1 and each subsequent wave appears to oscillate, with there being a high correlation of `r cor_therm12` after the second wave, then this correlation decreases to `r cor_therm13` after the third wave, and then increases slightly back to `r cor_therm14` after the fourth wave. So it seems that the more distant waves correlate less with baseline, and indicate that there is a decent amount of variability within real survey data.*
+*The correlations between therm 1 and each subsequent wave appears to oscillate, with there being a high correlation of `r gayr_nc_s2_compare_waves$cor_therm12` after the second wave, then this correlation decreases to `r gayr_nc_s2_compare_waves$cor_therm13` after the third wave, and then increases slightly back to `r gayr_nc_s2_compare_waves$cor_therm14` after the fourth wave. So it seems that the more distant waves correlate less with baseline, and indicate that there is a decent amount of variability within real survey data.*
 
 ### Q3.7 (5 points): You’ve now analyzed fabricated data (Study 1), caught the fraud, and examined more realistic data (Study 2). In 5–6 sentences, discuss:
 
@@ -461,16 +469,33 @@ $$therm2_i = \beta_0 + \beta_1 \times therm1_i + \epsilon_i$$
 Store the result as `fit_s1` and display the summary. Report the slope ($\hat{\beta_1}$), the R-squared, and the residual standard error.
 
 ```{r}
-
+fit_s1 <- lm(therm2 ~ therm1, data = gayr_nc_s1)
+summary(fit_s1)
 ```
-
-### Q4.2 (5 points): Repeat Q4.1 for the Study 2 **control group**. Store as `fit_s2.` Report the same three quantities: slope, R-squared, and residual standard error. Compare the two models. In fabricated data, we’d expect $\hat{\beta_1} \approx 1$ and $R^2 \approx 1$ because the “follow- up” data is just a copy of the baseline with tiny noise added. In real data, we’d expect regression to the mean: $\hat{\beta_1} < 1$ and lower $R^2$. Wich pattern do you see? (3–4 sentences)
 
 ```{r}
-
+# Display results
+cat("B1_hat:", summary(fit_s1)$coefficients[2], 
+    "\nR-squared:",summary(fit_s1)$r.squared, 
+    "\nRSE:", summary(fit_s1)$sigma)
 ```
 
-*BLANK*
+
+### Q4.2 (5 points): Repeat Q4.1 for the Study 2 **control group**. Store as `fit_s2.` Report the same three quantities: slope, R-squared, and residual standard error. Compare the two models. In fabricated data, we’d expect $\hat{\beta_1} \approx 1$ and $R^2 \approx 1$ because the “follow- up” data is just a copy of the baseline with tiny noise added. In real data, we’d expect regression to the mean: $\hat{\beta_1} < 1$ and lower $R^2$. Which pattern do you see? (3–4 sentences)
+
+```{r}
+fit_s2 <- lm(therm2 ~ therm1, data = gayr_nc_s2)
+summary(fit_s2)
+```
+
+```{r}
+# Display results
+cat("B1_hat:", summary(fit_s2)$coefficients[2], 
+    "\nR-squared:",summary(fit_s2)$r.squared, 
+    "\nRSE:", summary(fit_s2)$sigma)
+```
+
+*For Study 2, the regression of `therm2` on `therm1` in the control group gives us a slope of 0.969, an $R_2$ of 0.948, and a residual standard error of 6.55. Compared to Study 1, where we had a slope of 0.992$, an $R_2$ of 0.995, and a residual standard error of 1.98), the relationship between the baseline and subsequent wave attitudes is weaker and noisier. The lower $R^2$ in Study 2 shows that baseline attitudes explain less of the variation in the subsequent wave, and the larger residual standard error also indicates much more natural variability in responses. Overall, Study 2 displays the pattern expected in real data, whereas Study 1’s near perfect fit is suspicious and consistent with fabricated data.*
 
 ## 4.2 Comparing Groups with Regression
 
@@ -481,10 +506,24 @@ $$therm2_i = \beta_0 + \beta_1 \times treated_i + \epsilon_i$$
 Report $\hat{\beta_1}$, its standard error, t-statistic, and p-value. Compare $\hat{\beta_1}$ to the difference in means you calculated in Q3.4 — what do you notice? What does $\hat{\beta_0}$ estimate? Is the difference between groups statistically significant at $alpha$ = 0.05?
 
 ```{r}
+# Create binary var for group
+gayr_s2_binary <- gayr_s2 %>%
+  filter(treatment %in% c("Same-Sex Marriage Script by Gay Canvasser", "No Contact")) %>%
+  mutate(treated = ifelse(treatment == "Same-Sex Marriage Script by Gay Canvasser", 1, 0))
 
+fit_s2_binary <- lm(therm2 ~ treated, data = gayr_s2_binary)
+summary(fit_s2_binary)
 ```
 
-*BLANK*
+```{r}
+# Display results
+cat("Beta1_hat:", summary(fit_s2_binary)$coefficients["treated", "Estimate"],
+    "\nSE:", summary(fit_s2_binary)$coefficients["treated", "Std. Error"],
+    "\nt-stat:", summary(fit_s2_binary)$coefficients["treated", "t value"],
+    "\np-value:", summary(fit_s2_binary)$coefficients["treated", "Pr(>|t|)"])
+```
+
+*This regression gives us the estimates $\hat{\beta_1}$ = 3.568, $SE$ = 1.243, $t$ = 2.872, and a p-value of $0.0041$. The coefficient estimate, $\hat{\beta_1}$, represents the difference in mean post-treatment thermometer scores between the treated group and the control group, and it matches the difference in means calculated in Q3.4 because a regression with a binary treatment variable is mathematically equivalent to a difference-in-means comparison. The intercept, $\hat{\beta_0}$ estimates the average `therm2` score for the control (“No Contact”) group, since this is the group where `treated` = 0. Because the p-value is less than 0.05, the difference between the treated and control groups is statistically significant at the 5% level. This suggests that the canvassing treatment had a measurable positive effect on attitudes toward same-sex marriage in Study 2.*
 
 ## 4.3 Controlling for Baseline Attitudes
 
@@ -492,17 +531,28 @@ Report $\hat{\beta_1}$, its standard error, t-statistic, and p-value. Compare $\
 
 $$therm2_i = \beta_0 + \beta_1 \times treated + \beta_2 \times therm1_i +  \epsilon_i$$ Report the coeﬀicient on `treated`, its standard error, t-statistic, and p-value. Compare this to your results from Q4.3:
 
-(a) Did the estimate of̂ 𝛽1 change much?
+(a) Did the estimate of $\hat{\beta_1}$ change much?
 (b) Did the standard error change? In which direction?
 (c) Why does controlling for baseline attitudes improve precision? (2–3 sentences)
 
 ```{r}
-
+fit_s2_binary_therm1 <- lm(therm2 ~ treated + therm1, data = gayr_s2_binary)
+summary(fit_s2_binary_therm1)
 ```
 
-*BLANK*
+```{r}
+# Display results
+cat("Beta1_hat:", summary(fit_s2_binary_therm1)$coefficients["treated", "Estimate"],
+    "\nSE:", summary(fit_s2_binary_therm1)$coefficients["treated", "Std. Error"],
+    "\nt-stat:", summary(fit_s2_binary_therm1)$coefficients["treated", "t value"],
+    "\np-value:", summary(fit_s2_binary_therm1)$coefficients["treated", "Pr(>|t|)"])
+```
+
+*Compared to Q4.3, the estimate of $\hat{\beta_1}$ decreased from 3.568 to 2.459, but we still see a positive treatment effect that is considered significant. The standard error decreased substantially from 1.242 to 0.341, which is a 73% reduction of standard error that makes the estimate much more precise and increases the t-statistic. Controlling for baseline attitudes improves precision because `therm1` explains a large portion of the variation in `therm2`, which reduces unexplained noise in the model. By accounting for individuals’ initial attitudes, the regression is able to capture the treatment effect better and gives us a more precise estimate.*
 
 ### Q4.5 (5 points): Compare the R-squared values from Q4.3 and Q4.4. Why does adding therm1 increase the R-squared so dramatically? What does this tell you about how much of the variation in follow-up attitudes is explained by where people started versus the treatment?
+
+*The R-squared increases from 0.0039 in Q4.3 to 0.925 in Q4.4 after adding therm1. This happens because baseline `therm1` scores strongly predict thermometer scores in subsequent waves, so most of the variation in `therm2` is therefore explained by where people started rather than by the treatment. The treatment still has an effect, but baseline attitudes explain more of the overall variation.*
 
 Finally, use `predict()` to generate predicted values from your Q4.4 model for two hypothetical respondents:
 
@@ -512,7 +562,17 @@ Finally, use `predict()` to generate predicted values from your Q4.4 model for t
 What is the predicted difference in their Wave 2 attitudes?
 
 ```{r}
+# Hypothetical respondents
+new_data <- data.frame(
+  treated = c(1, 0),
+  therm1 = c(50, 50))
 
+# Predict
+prediction <- predict(fit_s2_binary_therm1, newdata = new_data)
+prediction
+
+# Calculate predicted difference
+pred_diff = prediction[1] - prediction[2]
 ```
 
-*BLANK*
+*The predicted wave 2 attitude for Person A (treated) is 52.48, while for Person B (control) it is 50.02, so the predicted difference between them is `r pred_diff`.*

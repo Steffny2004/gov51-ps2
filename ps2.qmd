@@ -34,13 +34,14 @@ n <- nrow(gay)
 unique_study_count <- length(unique(gay$study))
 treatment_conditions <- unique(gay$treatment)
 
+# Display results
 cat("Total observations:", n, 
     "\n\nNumber of unique studies:", unique_study_count,
     "\n\nThe treatment conditions in the treatment variable are:\n-", 
     paste(treatment_conditions, collapse = "\n- "))
 ```
 
-### Q1.2 (3 points): Filter to Study 1, Wave 1 only. Calculate the mean of ssm (same-sex marriage attitude, scored 1–5) for each treatment group using group_by() and summarize(). Which treatment group shows the highest average support?
+### Q1.2 (3 points): Filter to Study 1, Wave 1 only. Calculate the mean of ssm for each treatment group. Which treatment group shows the highest average support?
 
 ```{r}
 # Filter to Study 1, Wave 1
@@ -59,6 +60,8 @@ gay_s1w1_mean_ssm
 
 *The Recycling Script by Gay Canvasser group showed the highest average support of 3.13.*
 
+\clearpage
+
 ### Q1.3 (3 points): Still using Study 1, Wave 1, calculate the standard deviation of ssm within each treatment group. Are the standard deviations roughly similar across groups? Why is this important in a randomized experiment? (2–3 sentences)
 
 ```{r}
@@ -72,7 +75,7 @@ gay_s1w1_sd_ssm
 
 *We can see that the standard deviations for the ssm's across the treatment groups looks very similar, with all of them being close to 1.68. It's important that the standard deviations are roughly similar across groups because then we can more confidently say that the observed differences between treatment groups are caused by the treatment itself rather than unequal variability between groups.*
 
-### Q1.4 (3 points): Create a bar plot of the mean ssm by treatment group (Study 1, Wave 1) using ggplot() with geom_col(). Hint: First create a summary data frame with the means, then plot it.
+### Q1.4 (3 points): Create a bar plot of mean ssm by treatment group (Study 1, Wave 1).
 
 ```{r}
 library(scales)
@@ -94,7 +97,7 @@ ggplot(data = gay_s1w1_mean_ssm, aes(x = treatment, y = mean_ssm, fill = treatme
 
 ## 1.2 Checking Balance and Comparing Outcomes
 
-### Q1.5 (4 points): A well-run randomized experiment should produce groups that look similar at baseline. Filter gay.csv to Study 1, Wave 1. Compare the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” group:
+### Q1.5 (4 points): Filter gay.csv to Study 1, Wave 1. Compare the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” group:
 
 -   Calculate the mean and SD of ssm for each group
 -   Compute the standardized difference in means: $\frac{{\bar{x}}_{\text{gay canvasser}} - {\bar{x}}_{\text{no contact}}}{\sqrt{s^2_{\text{gay canvasser}} + s^2_{\text{no contact}}} / 2}$
@@ -110,16 +113,18 @@ gay_s1w1_compare <- gay_s1w1 %>%
     sd_ssm = sd(ssm))
 gay_s1w1_compare
 
-standardized_mean_diff_s1w1 <- (gay_s1w1_compare$mean_ssm[2] - gay_s1w1_compare$mean_ssm[1]) / 
+standardized_mean_diff_s1w1 <- (gay_s1w1_compare$mean_ssm[2] - 
+                                  gay_s1w1_compare$mean_ssm[1]) / 
   sqrt((((gay_s1w1_compare$sd_ssm[2])^2 + (gay_s1w1_compare$sd_ssm[1])^2) / 2))
+
 cat("Standardized difference in means:", standardized_mean_diff_s1w1)
 ```
 
 *The standardized difference in means between the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” groups is `r standardized_mean_diff_s1w1`, which has an absolute value below 0.25 and suggests good balance. Looking at our summary table, it agrees with this metric intuitively given that at baseline, these two groups seem to be very similar in terms of balance as their mean ssm's during Wave 1 are so close to one another even before standardization (0.017569 unstandardized difference), and definitely overlap within two standard errors of each other.*
 
-### Q1.6 (4 points): Now look at the outcomes. Filter to Study 1, Wave 2 only. Calculate the mean ssm for the gay canvasser group and the No Contact group. What is the difference in means (gay canvasser minus no contact)?
+### Q1.6 (4 points): Now look at the outcomes. Filter to Study 1, Wave 2 only. Calculate the mean ssm for each group. What is the difference in means (gay canvasser - no contact)? 
 
-Interpret: since the groups were balanced at baseline, what does a difference at Wave 2 suggest? (2–3 sentences)
+Since the groups were balanced at baseline, what does a difference at Wave 2 suggest? (2–3 sentences)
 
 ```{r}
 gay_s1w2 <- gay %>%
@@ -136,10 +141,11 @@ gay_s1w2_compare
 standardized_mean_diff_s1w2 <- (gay_s1w2_compare$mean_ssm[2] - 
                                   gay_s1w2_compare$mean_ssm[1]) / 
   sqrt((((gay_s1w2_compare$sd_ssm[2])^2 + (gay_s1w2_compare$sd_ssm[1])^2) / 2))
+
 cat("Standardized difference in means:", standardized_mean_diff_s1w2)
 ```
 
-*Given that we considered the groups balanced at baseline, the standardized difference now being `r standardized_mean_diff_s1w2` is very comparable to baseline given that it is still below 0.25 in absolute value. Although the standardized difference in means is 0.05 greater than it was at baseline, this change still seems minuscule and suggests a balance between the groups.*
+*Given that we considered the groups balanced at baseline, the standardized difference now being `r standardized_mean_diff_s1w2` is very comparable to baseline as it is still below 0.25 in absolute value. Although the standardized difference in means is 0.05 greater than it was at baseline, this change still seems minuscule and suggests a balance between the groups.*
 
 \clearpage
 
@@ -147,7 +153,7 @@ cat("Standardized difference in means:", standardized_mean_diff_s1w2)
 
 ## 2.1 The Baseline Distribution
 
-### Q2.1 (3 points): Load `gayreshaped.csv` and `ccap2012.csv.` Report the number of observations and column names for each dataset. In `gayreshaped.csv`, the variables `therm1` through `therm4` represent feeling thermometer scores (0–100) toward gay men and lesbians, measured at each survey wave.
+### Q2.1 (3 points): Load `gayreshaped.csv` and `ccap2012.csv.` Report the number of observations and column names for each dataset.
 
 ```{r}
 # Load data
@@ -161,10 +167,11 @@ n_ccap <- nrow(ccap)
 colnames_ccap <- colnames(ccap)
 
 # Display results
-cat("gayreshaped.csv:\n", n_gayr, "total observations and the column names are\n-", paste(colnames_gayr, collapse = "\n- "))
+cat("gayreshaped.csv:\n", n_gayr, "total observations and the column names are\n-", 
+    paste(colnames_gayr, collapse = "\n- "))
 
-cat("\n\nccap2012.csv.:\n", n_ccap, "total observations and the column names are\n-", paste(colnames_ccap, collapse = "\n- "))
-
+cat("ccap2012.csv.:\n", n_ccap, "total observations and the column names are\n-", 
+    paste(colnames_ccap, collapse = "\n- "))
 ```
 
 ### Q2.2 (5 points): Extract the baseline feeling thermometer (`therm1`) for Study 1 from `gayreshaped.csv.` Calculate its mean, median, and standard deviation. Then do the same for gaytherm from `ccap2012.csv` (remove NAs). Report both sets of statistics side by side. What do you notice? (1–2 sentences)
@@ -187,6 +194,7 @@ ccap_baseline_summary <- ccap %>%
     median = median(gaytherm), 
     sd = sd(gaytherm))
 
+# Report side-by-side
 combined_data_summary <- tibble(
   stat = c("Mean", "Median", "SD"),
   gayr = c(
@@ -201,14 +209,13 @@ combined_data_summary <- tibble(
   )
 )
 
+# Display results
 combined_data_summary
 ```
 
 *Looking at the test statistics of both datasets side by side, it seems that the mean, median, and sd between the two are extremely similar in terms of thermometer scoring and have lots of overlap. It would appear that their samples are pretty balanced and similar to one another.*
 
-### Q2.3 (5 points): Create side-by-side histograms comparing the LaCour Study 1 baseline (therm1) and the CCAP data (gaytherm). Use the same bin breaks for both: breaks = seq(0, 100, by = 5).
-
-*Hint*: Combine the two datasets into one data frame with a column indicating the source, then use `ggplot()` with `facet_wrap()`.
+### Q2.3 (5 points): Create side-by-side histograms comparing the LaCour Study 1 baseline (therm1) and the CCAP data (gaytherm).
 
 Do these look like they came from different populations? (2–3 sentences)
 
@@ -258,6 +265,7 @@ gayr_nc_s2_summary <- gayr %>%
     cor = cor(therm1, therm2, use =  "complete.obs"), 
     sd = sd(therm2 - therm1))
 
+# Report side-by-side
 combined_s1_s2_summary <- tibble(
   stat = c("Correlation", "SD of Within-Person Change"),
   gayr_control_s1 = c(
@@ -346,7 +354,7 @@ gayr_s2_compare_baseline <- gayr_s2 %>%
 gayr_s2_compare_baseline
 ```
 
-### Q3.2 (3 points): Create side-by-side histograms of Study 1 baseline (`therm1`) and Study 2 baseline (`therm1`), using the same bins as before. How do they compare visually? (2–3 sentences)
+### Q3.2 (3 points): Create side-by-side histograms of Study 1 baseline (`therm1`) and Study 2 baseline (`therm1`). How do they compare visually? (2–3 sentences)
 
 ```{r}
 # Combine datasets
@@ -385,7 +393,12 @@ gayr_s2_compare_baseline <- gayr_s2 %>%
     sd_therm1 = sd(therm1))
 gayr_s2_compare_baseline
 
-standardized_mean_diff_gayr_s2 <- (gayr_s2_compare_baseline$mean_therm1[2] - gayr_s2_compare_baseline$mean_therm1[1]) / sqrt((((gayr_s2_compare_baseline$sd_therm1[2])^2 + (gayr_s2_compare_baseline$sd_therm1[1])^2) / 2))
+standardized_mean_diff_gayr_s2 <- (gayr_s2_compare_baseline$mean_therm1[2] - 
+                                     gayr_s2_compare_baseline$mean_therm1[1]) / 
+  sqrt(((gayr_s2_compare_baseline$sd_therm1[2])^2 + 
+          (gayr_s2_compare_baseline$sd_therm1[1])^2) / 2)
+
+cat("Standardized difference in means:", standardized_mean_diff_gayr_s2)
 ```
 
 *The standardized difference in means between the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” groups for Study 2 now is `r standardized_mean_diff_gayr_s2`, which has an absolute value very below 0.25 and suggests good balance. Looking at our summary table, it also agrees with this metric intuitively given that at baseline, these two groups seem to be very similar in terms of balance as their mean ssm's during Wave 1 are so close to one another even before standardization (0.28077 unstandardized difference), and definitely overlap within two standard errors of each other.*
@@ -402,7 +415,9 @@ gayr_s2_compare_outcome <- gayr_s2 %>%
     sd_therm2 = sd(therm2))
 gayr_s2_compare_outcome
 
-mean_diff_gayr_s2 <- gayr_s2_compare_outcome$mean_therm2[2] - gayr_s2_compare_outcome$mean_therm2[1]
+mean_diff_gayr_s2 <- gayr_s2_compare_outcome$mean_therm2[2] - 
+  gayr_s2_compare_outcome$mean_therm2[1]
+
 cat("The difference in post-period means is", mean_diff_gayr_s2)
 ```
 
@@ -411,7 +426,7 @@ cat("The difference in post-period means is", mean_diff_gayr_s2)
 ### Q3.5 (4 points): Calculate the standard error of the difference in post-period means from Q3.4. Use the formula:
 
 $$SE = \sqrt{\frac{s^2_{\text{gay canvasser}}}{n_{\text{gay canvasser}}} + \frac{s^2_{\text{no contact}}}{n_{\text{no contact}}}}$$ 
-where $s^2$ is the variance of `therm2` and $n$ is the sample size for each group. Then construct a 95% confidence interval: $(\bar{x_1} - \bar{x_2}) \pm 1.96 \times SE$. Does the CI include zero? What does this tell you about whether the groups differ after the conversations?
+**where $s^2$ is the variance of `therm2` and $n$ is the sample size for each group. Then construct a 95% confidence interval: $(\bar{x_1} - \bar{x_2}) \pm 1.96 \times SE$. Does the CI include zero? What does this tell you about whether the groups differ after the conversations?**
 
 ```{r}
 se_parameters <- gayr_s2 %>%
@@ -497,7 +512,7 @@ cat("B1_hat:", summary(fit_s2)$coefficients[2],
     "\nRSE:", summary(fit_s2)$sigma)
 ```
 
-*For Study 2, the regression of `therm2` on `therm1` in the control group gives us a slope of 0.969, an $R_2$ of 0.948, and a residual standard error of 6.55. Compared to Study 1, where we had a slope of 0.992$, an $R_2$ of 0.995, and a residual standard error of 1.98), the relationship between the baseline and subsequent wave attitudes is weaker and noisier. The lower $R^2$ in Study 2 shows that baseline attitudes explain less of the variation in the subsequent wave, and the larger residual standard error also indicates much more natural variability in responses. Overall, Study 2 displays the pattern expected in real data, whereas Study 1’s near perfect fit is suspicious and consistent with fabricated data.*
+*For Study 2, the regression of `therm2` on `therm1` in the control group gives us a slope of 0.969, an $R_2$ of 0.948, and a residual standard error of 6.55. Compared to Study 1, where we had a slope of 0.992$, an $R_2$ of 0.995, and a residual standard error of 1.98), the relationship between the baseline and subsequent wave attitudes is weaker and noisier. In Study 2, the slope $\hat{\beta_1}$ being less than 1 shows regression to the mean and the lower $R^2$ in Study 2 shows that baseline attitudes explain less of the variation in the subsequent wave, which is consistent with real data. Overall, Study 2 displays the pattern expected in real data, whereas Study 1’s near perfect fit with both $\hat{\beta_1}$ and $R^2$ are approximately 1 is suspicious and consistent with fabricated data.*
 
 ## 4.2 Comparing Groups with Regression
 
@@ -505,10 +520,9 @@ cat("B1_hat:", summary(fit_s2)$coefficients[2],
 
 $$therm2_i = \beta_0 + \beta_1 \times treated_i + \epsilon_i$$
 
-Report $\hat{\beta_1}$, its standard error, t-statistic, and p-value. Compare $\hat{\beta_1}$ to the difference in means you calculated in Q3.4 — what do you notice? What does $\hat{\beta_0}$ estimate? Is the difference between groups statistically significant at $alpha$ = 0.05?
+Report $\hat{\beta_1}$, its standard error, t-statistic, and p-value. Compare $\hat{\beta_1}$ to the difference in means you calculated in Q3.4 — what do you notice? What does $\hat{\beta_0}$ estimate? Is the difference between groups statistically significant at $\alpha$ = 0.05?
 
 ```{r}
-# Create binary var for group
 gayr_s2_binary <- gayr_s2 %>%
   filter(treatment %in% c("Same-Sex Marriage Script by Gay Canvasser", "No Contact")) %>%
   mutate(treated = ifelse(treatment == "Same-Sex Marriage Script by Gay Canvasser", 1, 0))
@@ -578,5 +592,3 @@ pred_diff = prediction[1] - prediction[2]
 
 cat("Predicted difference:", pred_diff)
 ```
-
-*The predicted wave 2 attitude for Person A (treated) is 52.48, while for Person B (control) it is 50.02, so the predicted difference between them is `r pred_diff`.*

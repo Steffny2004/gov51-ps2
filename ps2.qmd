@@ -75,6 +75,8 @@ gay_s1w1_sd_ssm
 
 *We can see that the standard deviations for the ssm's across the treatment groups looks very similar, with all of them being close to 1.68. It's important that the standard deviations are roughly similar across groups because then we can more confidently say that the observed differences between treatment groups are caused by the treatment itself rather than unequal variability between groups.*
 
+\clearpage
+
 ### Q1.4 (3 points): Create a bar plot of mean ssm by treatment group (Study 1, Wave 1).
 
 ```{r}
@@ -94,6 +96,8 @@ ggplot(data = gay_s1w1_mean_ssm, aes(x = treatment, y = mean_ssm, fill = treatme
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   ylim(0, 3.5)
 ```
+
+\clearpage
 
 ## 1.2 Checking Balance and Comparing Outcomes
 
@@ -121,6 +125,8 @@ cat("Standardized difference in means:", standardized_mean_diff_s1w1)
 ```
 
 *The standardized difference in means between the “Same-Sex Marriage Script by Gay Canvasser” group and the “No Contact” groups is `r standardized_mean_diff_s1w1`, which has an absolute value below 0.25 and suggests good balance. Looking at our summary table, it agrees with this metric intuitively given that at baseline, these two groups seem to be very similar in terms of balance as their mean ssm's during Wave 1 are so close to one another even before standardization (0.017569 unstandardized difference), and definitely overlap within two standard errors of each other.*
+
+\clearpage
 
 ### Q1.6 (4 points): Now look at the outcomes. Filter to Study 1, Wave 2 only. Calculate the mean ssm for each group. What is the difference in means (gay canvasser - no contact)? 
 
@@ -241,9 +247,11 @@ ggplot(combined_data, aes(x = therm)) +
 
 *The distributions of both datasets look very similar, with the main difference being in the number of observations. Otherwise, the heaping towards the middle value at 50 and the heaping towards the more extreme ends of 0 and 100 track across both distributions, making them look like they came from very similar populations.*
 
+\clearpage
+
 ## 2.2 Re-test Reliability
 
-### Q2.4 (6 points): For both the Study 1 and Study 2 control groups (“No Contact”), calculate:
+### Q2.4 (6 points): For both Study 1 and Study 2 control groups, calculate:
 
 (a) The correlation between `therm1` and `therm2` (use `cor()` with use = "`complete.obs`")
 (b) The standard deviation of the within-person change (`therm2` - `therm1`)
@@ -268,20 +276,15 @@ gayr_nc_s2_summary <- gayr %>%
 # Report side-by-side
 combined_s1_s2_summary <- tibble(
   stat = c("Correlation", "SD of Within-Person Change"),
-  gayr_control_s1 = c(
-    gayr_nc_s1_summary$cor,
-    gayr_nc_s1_summary$sd
-  ),
-  gayr_control_s2 = c(
-    gayr_nc_s2_summary$cor,
-    gayr_nc_s2_summary$sd
+  gayr_control_s1 = c(gayr_nc_s1_summary$cor, gayr_nc_s1_summary$sd),
+  gayr_control_s2 = c(gayr_nc_s2_summary$cor, gayr_nc_s2_summary$sd)
   )
-)
-
 combined_s1_s2_summary
 ```
 
 *Study 2 shows a more plausible pattern because it's correlation isn't as high (0.972) as it is for Study 1 (0.998), which in Study 1 seems to be too good to be true. Also, it's standard deviation of the within-person change between `therm1` and `therm2` is larger than it was initially.*
+
+\clearpage
 
 ### Q2.5 (5 points): Create two scatter plots side by side:
 
@@ -319,6 +322,8 @@ ggplot(combined_nc_s1s2, aes(x = therm1, y = therm2)) +
 ```
 
 *When looking at the correlation between `therm1` and `therm2`, Study 1 shows nearly perfect positive linear correlation as the data falls barely above and below our $45^{\circ}$ line. In contrast, Study 2 shows positive linear correlation that is not as strong, as depicted by the jitter in the data above and below the $45^{\circ}$, and with the data being more spread out or sparse in some regions of the Feeling Thermometer. It is clear that Study 2's scatterplot looks like real longitudinal data in comparison to Study 1 because of the natural noise that seems to exist in Study 2, but in addition to the neatness along the line, the heaping in the middle for Study 1 on the scatterplot looks unnaturally piled along the center in comparison to Study 2.*
+
+\clearpage
 
 ## 2.3 Putting It All Together
 
@@ -421,6 +426,8 @@ mean_diff_gayr_s2 <- gayr_s2_compare_outcome$mean_therm2[2] -
 cat("The difference in post-period means is", mean_diff_gayr_s2)
 ```
 
+\clearpage
+
 ## 3.3 Uncertainty Around the Difference
 
 ### Q3.5 (4 points): Calculate the standard error of the difference in post-period means from Q3.4. Use the formula:
@@ -450,6 +457,8 @@ cat("SE =", se,
 
 *The standard error of the difference in post-period means from Q3.4 is `r se`, and the 95% CI is [`r ci_upper`, `r ci_lower`]. As we see, the 95% CI does not include 0, which suggests that the difference between the two groups is non-zero and that there is indeed some treatment effect difference after the conversations where there is a higher thermometer score for the gay canvassers post-conversation compared to the no contact groups.*
 
+\clearpage
+
 ## 3.4 Tracking Attitudes Over Time
 
 ### Q3.6 (4 points): For the Study 2 control group, calculate the correlation between therm1 and each subsequent wave: therm2, therm3, and therm4. Use cor() with use = "complete.obs". Do the correlations decay over time (i.e., do more distant waves correlate less with baseline)? What does this pattern tell you about the stability of real survey measurements? (2–3 sentences)
@@ -465,6 +474,8 @@ gayr_nc_s2_compare_waves
 
 *The correlations between therm 1 and each subsequent wave appears to oscillate, with there being a high correlation of `r gayr_nc_s2_compare_waves$cor_therm12` after the second wave, then this correlation decreases to `r gayr_nc_s2_compare_waves$cor_therm13` after the third wave, and then increases slightly back to `r gayr_nc_s2_compare_waves$cor_therm14` after the fourth wave. So it seems that the more distant waves correlate less with baseline, and indicate that there is a decent amount of variability within real survey data.*
 
+\clearpage
+
 ### Q3.7 (5 points): You’ve now analyzed fabricated data (Study 1), caught the fraud, and examined more realistic data (Study 2). In 5–6 sentences, discuss:
 
 -   What makes Study 2’s data different from Study 1’s data? Be specific about which statistics differ and by how much.
@@ -474,6 +485,8 @@ gayr_nc_s2_compare_waves
 -   What role did simple measurement tools (mean, SD, histograms, correlations) play in detecting the fraud?
 
 *Study 2’s data looks different and more realistic than Study 1’s data because the treatment effects are smaller and the data is naturally noisier. In Study 2, the baseline means of `therm1` for the treatment and control groups are very similar (as there is only a difference of 0.28077 points with a standardized difference well below 0.25), which indicates that there was indeed proper randomization, whereas Study 1 showed unusually neat and precise patterns. The post-treatment difference in Study 2 is also smaller and less exaggerated than the perfectly consistent effects we saw in Study 1, which makes sense since the treatment effect would be smaller and messier due to natural human variation human in attitudes, measurement errors in surveys, and the natural fluctuation of people’s responses over time. This variability is clear in Study 2 as seen by the large standard deviations and correlations that change across waves, in comparison to Study 1 where the correlation remained rather high throughout. Simple tools like means, standard deviations, histograms, and correlations were important for detecting the fraud because they revealed patterns in Study 1 that were inconsistent with real data by being too smooth and consistent.*
+
+\clearpage
 
 # 4 Part 4: Formalizing the Evidence with Regression (25 points)
 
@@ -592,3 +605,9 @@ pred_diff = prediction[1] - prediction[2]
 
 cat("Predicted difference:", pred_diff)
 ```
+
+\clearpage 
+
+# 5 Summary
+
+Nothing to write or submit for this problem. Submissions checklist completed.
